@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic Tac Toe - Player vs Computer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+
+    .cell {
+      background: #fff;
+      border: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .cell:hover {
+      background: #f1f1f1;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      border: none;
+      color: rgb(233, 238, 252);
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e8f2fc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Tic Tac Toe: Player vs Computer</h1>
+  <div class="board" id="board"></div>
+  <div class="status" id="status">Your turn (X)</div>
+  <button onclick="resetGame()">Restart Game</button>
+
+  <script>
+    const board = document.getElementById('board');
+    const statusText = document.getElementById('status');
+    let currentPlayer = 'X'; // Always starts as player
+    let gameActive = true;
+    let cells = ['', '', '', '', '', '', '', '', ''];
+
+    function createBoard() {
+      board.innerHTML = '';
+      cells.forEach((cell, index) => {
+        const div = document.createElement('div');
+        div.classList.add('cell');
+        div.setAttribute('data-index', index);
+        div.textContent = cell;
+        div.addEventListener('click', handleCellClick);
+        board.appendChild(div);
+      });
+    }
+
+    function handleCellClick(e) {
+      const index = e.target.getAttribute('data-index');
+      if (cells[index] !== '' || !gameActive || currentPlayer !== 'X') return;
+
+      makeMove(index, 'X');
+      if (checkGameStatus('X')) return;
+
+      // Computer plays next
+      setTimeout(() => {
+        computerMove();
+      }, 500);
+    }
+
+    function makeMove(index, player) {
+      cells[index] = player;
+      board.children[index].textContent = player;
+    }
+
+    function computerMove() {
+      if (!gameActive) return;
+
+      let available = cells.map((val, i) => val === '' ? i : null).filter(i => i !== null);
+      if (available.length === 0) return;
+
+      let move = available[Math.floor(Math.random() * available.length)];
+      makeMove(move, 'O');
+      checkGameStatus('O');
+    }
+
+    function checkGameStatus(player) {
+      if (checkWin(player)) {
+        statusText.textContent = player === 'X' ? 'You win!' : 'Computer wins!';
+        gameActive = false;
+        return true;
+      }
+
+      if (cells.every(cell => cell !== '')) {
+        statusText.textContent = "It's a draw!";
+        gameActive = false;
+        return true;
+      }
+
+      currentPlayer = player === 'X' ? 'O' : 'X';
+      statusText.textContent = currentPlayer === 'X' ? "Your turn (X)" : "Computer's turn (O)";
+      return false;
+    }
+
+    function checkWin(player) {
+      const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
+      return winPatterns.some(pattern => {
+        const [a, b, c] = pattern;
+        return cells[a] === player && cells[b] === player && cells[c] === player;
+      });
+    }
+
+    function resetGame() {
+      cells = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      gameActive = true;
+      statusText.textContent = "Your turn (X)";
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+
+</body>
+</html>
