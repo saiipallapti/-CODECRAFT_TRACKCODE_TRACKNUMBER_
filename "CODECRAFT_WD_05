@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #43cea2, #185a9d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    select, button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover, select:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    .result p {
+      margin: 5px 0;
+    }
+
+    .error {
+      color: red;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>🌤️ Weather App</h2>
+    <select id="locationSelect">
+      <option value="Mumbai">Mumbai</option>
+      <option value="Delhi">Delhi</option>
+      <option value="Chennai">Chennai</option>
+      <option value="Karnataka">Karnataka</option>
+      <option value="Hyderabad">Hyderabad</option>
+      <option value="Andhra Pradesh">Andhra Pradesh</option>
+      <option value="Kerala">Kerala</option>
+      <option value="Uttar Pradesh">Uttar Pradesh</option>
+      <option value="Bengaluru">Bengaluru</option>
+      <option value="Kolkata">Kolkata</option>
+    </select>
+    <br><br>
+    <button onclick="getWeather()">Get Weather</button>
+    <div class="result" id="weatherResult">Select a location above to get the weather.</div>
+  </div>
+
+  <script>
+    const apiKey = "1884859e7b5c321df7d77f7b99ac298b"; // ✅ your actual API key
+
+    // Function to fetch weather data
+    async function getWeather() {
+      const location = document.getElementById("locationSelect").value;
+      const result = document.getElementById("weatherResult");
+
+      result.innerHTML = "<p>Fetching weather data...</p>";
+
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
+        );
+        const data = await res.json();
+
+        if (data.cod !== 200) {
+          result.innerHTML = `<p class='error'>City not found: ${location}</p>`;
+          return;
+        }
+
+        const { name, main, weather, wind, sys } = data;
+
+        result.innerHTML = `
+          <p><strong>Location:</strong> ${name}, ${sys.country}</p>
+          <p><strong>Temperature:</strong> ${main.temp} °C</p>
+          <p><strong>Condition:</strong> ${weather[0].description}</p>
+          <p><strong>Humidity:</strong> ${main.humidity}%</p>
+          <p><strong>Wind Speed:</strong> ${wind.speed} m/s</p>
+        `;
+      } catch (error) {
+        result.innerHTML = "<p class='error'>Error fetching weather data. Please try again.</p>";
+      }
+    }
+
+    // Auto-update weather every 5 minutes
+    setInterval(getWeather, 300000); // 300000ms = 5 minutes
+  </script>
+
+</body>
+</html>
